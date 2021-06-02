@@ -19,7 +19,7 @@
     "release:major": "npm run release -- --release-as major",
     "release:minor": "npm run release -- --release-as minor",
     "release:update": "npm run release -- --release-as patch --skip.tag",
-    "test": "nyc --reporter=text-summary --reporter=text mocha --timeout 60000 -r ts-node/register test/**/*.spec.ts",
+    "test": "nyc --reporter=text-summary mocha --timeout 60000 -r ts-node/register test/**/*.spec.ts",
     "coverage": "nyc --reporter=text-lcov mocha --timeout 60000 -r ts-node/register test/**/*.spec.ts | coveralls"
   },
   "dependencies": {
