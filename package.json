@@ -1,6 +1,6 @@
 {
   "name": "symspell-ex",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Spelling correction & Fuzzy search based on symmetric delete spelling correction algorithm",
   "homepage": "https://github.com/m-elbably/symspell-ex#readme",
   "repository": "https://github.com/m-elbably/symspell-ex",
