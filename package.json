@@ -13,7 +13,7 @@
     "lib/"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "husky": "husky install",
     "build": "tsc --build",
     "release": "standard-version",
     "release:major": "npm run release -- --release-as major",
