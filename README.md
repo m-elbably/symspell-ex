@@ -7,7 +7,7 @@ Spelling correction & Fuzzy search based on *Symmetric Delete Spelling Correctio
 [![Node Version](https://img.shields.io/node/v/symspell-ex.svg)](https://nodejs.org)
 [![npm version](https://img.shields.io/npm/v/symspell-ex/latest.svg)](https://www.npmjs.com/package/symspell-ex)
 [![Build Status](https://github.com/m-elbably/symspell-ex/workflows/symspell-ex/badge.svg)](https://github.com/m-elbably/symspell-ex/workflows/symspell-ex/badge.svg)
-[![coverage status](https://img.shields.io/coveralls/github/m-elbably/symspell-ex.svg)](https://coveralls.io/github/m-elbably/symspell-ex)
+[![Coverage Status](https://coveralls.io/repos/github/m-elbably/symspell-ex/badge.svg?branch=main&t=pKbxsM)](https://coveralls.io/github/m-elbably/symspell-ex?branch=main)
 [![License](https://img.shields.io/github/license/m-elbably/symspell-ex.svg)](https://raw.githubusercontent.com/m-elbably/symspell-ex/master/LICENSE)
 
 ## Installation

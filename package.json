@@ -1,6 +1,6 @@
 {
   "name": "symspell-ex",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Spelling correction & Fuzzy search based on symmetric delete spelling correction algorithm",
   "homepage": "https://github.com/m-elbably/symspell-ex#readme",
   "repository": "https://github.com/m-elbably/symspell-ex",
@@ -13,8 +13,9 @@
     "lib/"
   ],
   "scripts": {
-    "prepublish": "tsc --build",
+    "prepare": "husky install",
     "build": "tsc --build",
+    "release": "standard-version",
     "release:major": "npm run release -- --release-as major",
     "release:minor": "npm run release -- --release-as minor",
     "release:update": "npm run release -- --release-as patch --skip.tag",
@@ -41,12 +42,6 @@
     "standard-version": "^9.3.0",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run release:update",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "keywords": [
     "nlp",

@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {expect} from "chai";
 import {before, after, describe, it} from "mocha"
 import {SymSpellEx, DataStore, RedisStore} from "../../src";
@@ -8,12 +7,12 @@ import Redis, {RedisConfig} from "../../src/core/redis/database";
 enum Language {
     English = 'en',
     Arabic = 'ar'
-};
+}
 
 let redis: any;
 let store: DataStore;
 let symSpellEx: SymSpellEx;
-let trainingTerms: Array<string>;
+
 const {
     EN_TERMS, EN_INV_TERMS,
     AR_TERMS, AR_INV_TERMS
@@ -38,7 +37,7 @@ after(async () => {
 
 describe('Testing redis store functionalities', () => {
     it('Should have new terms added after training', async () => {
-        for(let i=0; i < EN_TERMS.length; i += 1) {
+        for (let i = 0; i < EN_TERMS.length; i += 1) {
             await symSpellEx.add(EN_TERMS[i], Language.English);
         }
 
@@ -49,7 +48,7 @@ describe('Testing redis store functionalities', () => {
             .and.equal(EN_TERMS[0]);
 
         expect(lastEntry).to.be.a('string')
-            .and.equal(EN_TERMS[EN_TERMS.length-1]);
+            .and.equal(EN_TERMS[EN_TERMS.length - 1]);
     });
 
     it('Should have entry for selected term with frequency 1', async () => {
@@ -97,7 +96,7 @@ describe('Testing redis store functionalities', () => {
     });
 
     it('Should have terms for arabic language added', async () => {
-        for(let i=0; i < AR_TERMS.length; i += 1) {
+        for (let i = 0; i < AR_TERMS.length; i += 1) {
             await symSpellEx.add(AR_TERMS[i], Language.Arabic);
         }
 
@@ -108,7 +107,7 @@ describe('Testing redis store functionalities', () => {
             .and.equal(AR_TERMS[0]);
 
         expect(lastEntry).to.be.a('string')
-            .and.equal(AR_TERMS[AR_TERMS.length-1]);
+            .and.equal(AR_TERMS[AR_TERMS.length - 1]);
     });
 
     it('Should have all terms and entries cleared', async () => {
@@ -124,11 +123,11 @@ describe('Testing redis store functionalities', () => {
 describe('Testing redis store spelling search and correction', () => {
     before(async () => {
         await symSpellEx.store.clear();
-        for(let i=0; i < EN_TERMS.length; i += 1) {
+        for (let i = 0; i < EN_TERMS.length; i += 1) {
             await symSpellEx.add(EN_TERMS[i], Language.English);
         }
 
-        for(let i=0; i < AR_TERMS.length; i += 1) {
+        for (let i = 0; i < AR_TERMS.length; i += 1) {
             await symSpellEx.add(AR_TERMS[i], Language.Arabic);
         }
     });

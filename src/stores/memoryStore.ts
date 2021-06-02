@@ -1,4 +1,4 @@
-import {DEFAULT_LANGUAGE} from "../core/constants";
+import {DEFAULT_LANGUAGE} from "../core";
 import MegaHash from "megahash";
 import {DataStore} from "../core";
 
@@ -8,14 +8,20 @@ export class MemoryStore implements DataStore {
     private _terms: { [key: string]: Array<string>; };
     private _entries: { [key: string]: any; };
     private _maxEntryLength: number = 0;
+    private _initialized: boolean = false;
 
     async initialize(): Promise<void> {
         this._terms = {[this._language]: []};
         this._entries = {[this._language]: new MegaHash()};
+        this._initialized = true;
+    }
+
+    isInitialized() {
+        return this._initialized;
     }
 
     async setLanguage(language: string): Promise<void> {
-        if(this._terms[language] == null) {
+        if (this._terms[language] == null) {
             this._terms[language] = [];
             this._entries[language] = new MegaHash();
         }
@@ -33,22 +39,22 @@ export class MemoryStore implements DataStore {
     async setEntry(key: string, value: Array<number>): Promise<boolean> {
         const result = this._entries[this._language].set(key, value);
 
-        if(key.length > this._maxEntryLength) {
+        if (key.length > this._maxEntryLength) {
             this._maxEntryLength = key.length;
         }
         return (result === 1 || result === 2);
     }
 
     async getEntry(key: string): Promise<Array<number>> {
-        if(key == null || key.length === 0) return null;
+        if (key == null || key.length === 0) return null;
         return this._entries[this._language].get(key) || null;
     }
 
     async getManyEntries(keys: Array<string>): Promise<Array<Array<number>>> {
         const result = [];
-        for(let i=0 ; i < keys.length; i+= 1) {
+        for (let i = 0; i < keys.length; i += 1) {
             const item = this._entries[this._language].get(keys[i]);
-            if(item != null && item.length > 0) {
+            if (item != null && item.length > 0) {
                 result.push(item);
             } else {
                 result.push(null);

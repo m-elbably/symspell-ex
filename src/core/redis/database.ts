@@ -37,7 +37,7 @@ export default class Redis {
      */
     constructor(config: RedisConfig) {
         // @ts-ignore
-        const { host, port, password, db } = config;
+        const {host, port, password, db} = config;
 
         this._config = {
             host,

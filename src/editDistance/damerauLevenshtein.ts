@@ -44,7 +44,7 @@ export class DamerauLevenshteinDistance implements EditDistance {
         // cost of the n insertions)
         if (!source) {
             return target.length;
-        } else if (!target){
+        } else if (!target) {
             return source.length;
         }
 
@@ -55,8 +55,12 @@ export class DamerauLevenshteinDistance implements EditDistance {
         // Initialize a char code cache array
         this.sourceCodes = this.growArray(this.sourceCodes, sourceLength);
         this.targetCodes = this.growArray(this.targetCodes, targetLength);
-        for (i = 0; i < sourceLength; i++) { this.sourceCodes[i] = source.charCodeAt(i); }
-        for (i = 0; i < targetLength; i++) { this.targetCodes[i] = target.charCodeAt(i); }
+        for (i = 0; i < sourceLength; i++) {
+            this.sourceCodes[i] = source.charCodeAt(i);
+        }
+        for (i = 0; i < targetLength; i++) {
+            this.targetCodes[i] = target.charCodeAt(i);
+        }
 
         // Initialize the scoring matrix
         const INF = sourceLength + targetLength;
@@ -76,7 +80,8 @@ export class DamerauLevenshteinDistance implements EditDistance {
 
         // Run the damlev algorithm
         let chars: { [key: string]: number } = {};
-        let j: number, DB: number, i1: number, j1: number, j2: number, newScore: number;
+        let j: number, DB: number, i1: number, j1: number, j2: number,
+            newScore: number;
         for (i = 1; i <= sourceLength; i += 1) {
             DB = 0;
             for (j = 1; j <= targetLength; j += 1) {

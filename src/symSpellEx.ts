@@ -18,6 +18,10 @@ export class SymSpellEx {
         this.editDistance = editDistance;
         this.maxDistance = maxDistance;
         this.maxSuggestions = maxSuggestions;
+
+        if(!store.isInitialized()) {
+            throw new Error('Store must be initialized, Please call store.initialize() first');
+        }
     }
 
     private edits(word: string, min: number, max: number, deletes: Set<string>): Set<string> {
@@ -220,7 +224,7 @@ export class SymSpellEx {
     }
 
     async train(terms: Array<string>, language: string): Promise<void> {
-        for (let i=0; i < terms.length; i += 1) {
+        for (let i = 0; i < terms.length; i += 1) {
             await this.add(terms[i], language);
         }
     }

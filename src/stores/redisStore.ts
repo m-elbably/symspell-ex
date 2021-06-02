@@ -1,4 +1,4 @@
-import {DEFAULT_LANGUAGE} from "../core/constants";
+import {DEFAULT_LANGUAGE} from "../core";
 import {DataStore} from "../core";
 
 export class RedisStore implements DataStore {
@@ -11,6 +11,7 @@ export class RedisStore implements DataStore {
     private readonly _ENTRIES_KEY = 'entries';
     // Configuration keys
     private readonly _MAX_ENTRY_LENGTH = 'maxEntryLength';
+    private _initialized: boolean = false;
 
     constructor(instance: any) {
         this._redis = instance;
@@ -30,6 +31,11 @@ export class RedisStore implements DataStore {
                 return value
                 `
         });
+        this._initialized = true;
+    }
+
+    isInitialized() {
+        return this._initialized;
     }
 
     private get _configNamespace() {
@@ -88,7 +94,7 @@ export class RedisStore implements DataStore {
 
     async clear(): Promise<void> {
         const keys = await this._redis.keys(`${this._MAIN_KEY}:*`);
-        for(let i=0; i < keys.length; i+= 1) {
+        for (let i = 0; i < keys.length; i += 1) {
             await this._redis.del(keys[i]);
         }
     }
