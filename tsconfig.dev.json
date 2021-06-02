@@ -1,6 +1,27 @@
 {
-    "extends": "tsconfig.json",
     "compilerOptions": {
-        "sourceMap": true
+        "target": "es2017",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "declaration": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": true,
+        "outDir": "./lib",
+        "baseUrl": "./"
+    },
+    "include": [
+        "src/**/*",
+        "types/**/*",
+        "test/**/*"
+    ],
+    "exclude": [
+        "node_modules/**",
+        "lib"
+    ],
+    "ts-node": {
+        "files": true
     }
 }

@@ -3,7 +3,7 @@
  * an optimization of David Hamp-Gonsalves' port.
  * Based on implementation from https://github.com/microsoft/damlev
  */
-import {EditDistance} from "../core";
+import {EditDistance} from "../../index";
 
 export class DamerauLevenshteinDistance implements EditDistance {
     name = 'DamerauLevenshtein';

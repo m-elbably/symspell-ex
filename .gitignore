@@ -20,6 +20,7 @@ res/diagrams
 
 # Coverage reports
 coverage
+test/training
 
 # API keys and secrets
 .env

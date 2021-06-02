@@ -2,7 +2,7 @@
 
 Spelling correction & Fuzzy search based on *Symmetric Delete Spelling Correction algorithm* (SymSpell)
 
-> Work in progress, optimizations needs to be applied
+> Work in progress, need more optimizations
 
 [![Node Version](https://img.shields.io/node/v/symspell-ex.svg)](https://nodejs.org)
 [![npm version](https://img.shields.io/npm/v/symspell-ex/latest.svg)](https://www.npmjs.com/package/symspell-ex)
@@ -12,6 +12,14 @@ Spelling correction & Fuzzy search based on *Symmetric Delete Spelling Correctio
 
 ## Installation
     npm install symspell-ex --save
+
+> Changes v1.1.1
+> - 
+> - Term frequency should be provided for training and terms should be unique
+> - Correct function return different object (`Correction` object) 
+> - Hash table implemented in redis store instead of normal list structure
+> - Enhanced testing code and coverage
+> - Fixed bugs in lookup
 
 ## Features
 - ***Very fast***
@@ -29,11 +37,9 @@ For single term training you can use `add` function:
 import {SymSpellEx, MemoryStore} from 'symspell-ex';
 
 const LANGUAGE = 'en';
-// Create and initialize memory store (for simplicity)
-const store = new MemoryStore();
-await store.initialize();
-// Create SymSpellEx instnce and inject store into it
-symSpellEx = new SymSpellEx(store);
+// Create SymSpellEx instnce and inject store new store instance
+symSpellEx = new SymSpellEx(new MemoryStore());
+await symSpellEx.initialize();
 // Train data
 await symSpellEx.add("argument", LANGUAGE);
 await symSpellEx.add("computer", LANGUAGE);
@@ -42,7 +48,7 @@ await symSpellEx.add("computer", LANGUAGE);
 For multiple terms (Array) you can use `train` function:
 ```typescript
 const terms = ['argument', 'computer'];
-await symSpellEx.train(terms, LANGUAGE);
+await symSpellEx.train(terms, 1, LANGUAGE);
 ```
 
 ### Searching
@@ -60,28 +66,87 @@ Example
 ```typescript
 await symSpellEx.search('argoments', 'en');
 ```
+Example `Suggestion Object`:
+```json
+{
+  "term": "argoments",
+  "suggestion": "arguments",  
+  "distance": 2,
+  "frequency": 155
+}
+```
 
 ### Correction
-`correct` function can be used to get the best suggestion for input in terms of edit distance and frequency
+`correct` function can be used to get the best suggestion for input word or sentence in terms of edit distance and frequency
 
 Arguments:
 - `input` _String_ (Wrong/Invalid word we need to correct)
 - `language` _String_ (Language to be used in search)
 - `maxDistance` _Number_, _optional_, default = `2` (Maximum distance for suggestions)
 
-Return: `Suggetion` Suggestion object
+Return: `Correction` object which contains original `input` and corrected `output` string, with array of suggestions  
 
 Example
 ```typescript
-await symSpellEx.correct('argoments', 'en');
+await symSpellEx.correct('Special relatvity was orignally proposed by Albert Einstein', 'en');
 ```
 
-Example Result `Suggestion Object`:
+Returns this `Correction` object:
+> This output is totally depending on the quality of the training data that was push into the store
 ```json
 {
-  "term": "arguments",
-  "distance": 2,
-  "frequency": 155
+  "suggestions": [
+    {
+      "term": "Special",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "relatvity",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "was",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "orignally",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "proposed",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "by",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    },
+    {
+      "term": "Albert",
+      "suggestion": "albert",
+      "distance": 0,
+      "frequency": 1
+    },
+    {
+      "term": "Einstein",
+      "suggestion": null,
+      "distance": 0,
+      "frequency": 0
+    }
+  ],
+  "input": "Special relatvity was orignally proposed by Albert Einstein",
+  "output": "Special relatvity was orignally proposed by albert Einstein"
 }
 ```
 
@@ -103,6 +168,16 @@ which then allows O(1) search while getting spelling suggestions.
 
 ## Library Design
 ![Lib Diagram](./res/images/diagram.svg "SymSpellEx")
+
+### Tokenizer
+This interface can be implemented to provide a different tokenizer for the library
+
+Interface type
+```typescript
+export interface Tokenizer {
+    tokenize(input: string): Array<Token>;
+}
+```
 
 ### EditDistance
 This interface can be implemented to provide more algorithms to use to calculate edit distance between two words
@@ -128,16 +203,16 @@ Data store should handle storage for these 2 data types:
 
 Interface type
 ```typescript
-interface DataStore {
+export interface DataStore {
     name: string;
     initialize(): Promise<void>;
+    isInitialized(): boolean;
     setLanguage(language: string): Promise<void>;
-    // List data structure
-    pushTerm(key: string): Promise<number>;
+    pushTerm(value: string): Promise<number>;
     getTermAt(index: number): Promise<string>;
-    // Hash table data structure
+    getTermsAt(indexes: Array<number>): Promise<Array<string>>;
     getEntry(key: string): Promise<Array<number>>;
-    getManyEntries(keys: Array<string>): Promise<Array<Array<number>>>;
+    getEntries(keys: Array<string>): Promise<Array<Array<number>>>;
     setEntry(key: string, value: Array<number>): Promise<boolean>;
     hasEntry(key: string): Promise<boolean>;
     maxEntryLength(): Promise<number>;
@@ -156,11 +231,11 @@ to manage dictionary entries
 
 TODO
 
-- [ ] Tokenization
+- [x] Tokenization
+- [x] Sentence correction
+- [x] Bulk data training  
 - [ ] Word Segmentation
-- [ ] Sentence correction
-- [ ] Domain specific correction  
-- [ ] Bulk data training
+- [ ] Domain specific correction
 
 #### References
 * [Symmetric Delete Spelling Correction](https://wolfgarbe.medium.com/1000x-faster-spelling-correction-algorithm-2012-8701fcd87a5f)

@@ -1,17 +1,18 @@
-import {DEFAULT_LANGUAGE} from "../core";
+import {Languages} from "../core";
 import {DataStore} from "../core";
+
+const MAX_ENTRY_LENGTH = 'maxEntryLength';
 
 export class RedisStore implements DataStore {
     name = 'redis_store';
     private _redis: any;
-    private _language: string = DEFAULT_LANGUAGE;
+    private _language: string = Languages.ENGLISH;
     private readonly _MAIN_KEY = 'symspell_ex';
     private readonly _CONFIG_KEY = 'config';
     private readonly _TERMS_KEY = 'terms';
     private readonly _ENTRIES_KEY = 'entries';
-    // Configuration keys
-    private readonly _MAX_ENTRY_LENGTH = 'maxEntryLength';
     private _initialized: boolean = false;
+    private _termsCount = 0;
 
     constructor(instance: any) {
         this._redis = instance;
@@ -22,11 +23,11 @@ export class RedisStore implements DataStore {
             numberOfKeys: 2,
             lua:
                 `
-                local olen = redis.call("hget", ARGV[2], ARGV[3])
+                local olen = redis.call("hget", "${this._configNamespace}", "${this._maxEntryLength}")
                 local value = redis.call("hset", KEYS[1], KEYS[2], ARGV[1])
                 local nlen = #KEYS[2]
                 if(not olen or nlen > tonumber(olen)) then
-                  redis.call("hset", ARGV[2], ARGV[3], nlen)
+                  redis.call("hset", "${this._configNamespace}", "${this._maxEntryLength}", nlen)
                 end
                 return value
                 `
@@ -51,24 +52,32 @@ export class RedisStore implements DataStore {
     }
 
     private get _maxEntryLength() {
-        return `${this._language}.${this._MAX_ENTRY_LENGTH}`;
+        return `${this._language}.${MAX_ENTRY_LENGTH}`;
     }
 
     async setLanguage(language: string): Promise<void> {
         this._language = language;
+        this._termsCount = await this._redis.hlen(this._termsNamespace);
     }
 
-    async pushTerm(key: string): Promise<number> {
-        return this._redis.rpush(this._termsNamespace, key);
+    async pushTerm(value: string): Promise<number> {
+        const key = (this._termsCount++).toString();
+        await this._redis.hset(this._termsNamespace, key, value);
+        return this._termsCount;
     }
 
     async getTermAt(index: number): Promise<string> {
-        return this._redis.lindex(this._termsNamespace, index);
+        return this._redis.hget(this._termsNamespace, index.toString());
+    }
+
+    async getTermsAt(indexes: Array<number>): Promise<Array<string>> {
+        const keys = indexes.map((i) => i.toString());
+        return this._redis.hmget(this._termsNamespace, ...keys);
     }
 
     async setEntry(key: string, value: Array<number>): Promise<boolean> {
         const mValue = JSON.stringify(value);
-        return this._redis.hSetEntry(this._entriesNamespace, key, mValue, this._configNamespace, this._maxEntryLength)
+        return this._redis.hSetEntry(this._entriesNamespace, key, mValue)
             .then((value: number) => value === 1);
     }
 
@@ -77,7 +86,7 @@ export class RedisStore implements DataStore {
             .then((value: string) => JSON.parse(value));
     }
 
-    async getManyEntries(keys: Array<string>): Promise<Array<Array<number>>> {
+    async getEntries(keys: Array<string>): Promise<Array<Array<number>>> {
         return this._redis.hmget(this._entriesNamespace, ...keys)
             .then((values: Array<string>) => values.map((value) => JSON.parse(value)));
     }

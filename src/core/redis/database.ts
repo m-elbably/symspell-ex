@@ -19,7 +19,7 @@ export class RedisConfig {
     }
 }
 
-export default class Redis {
+export class Redis {
     _config: any;
     _db: IoRedis.Redis;
     _isConnected = false;

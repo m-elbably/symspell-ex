@@ -1,4 +1,4 @@
 export * from './core';
-export * from './editDistance';
+export * from './core/nlp/editDistance';
 export * from './stores'
 export * from './symSpellEx';

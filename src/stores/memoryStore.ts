@@ -1,12 +1,12 @@
-import {DEFAULT_LANGUAGE} from "../core";
+import {Languages} from "../core";
 import MegaHash from "megahash";
 import {DataStore} from "../core";
 
 export class MemoryStore implements DataStore {
     name = 'memory_store';
-    private _language: string = DEFAULT_LANGUAGE;
-    private _terms: { [key: string]: Array<string>; };
-    private _entries: { [key: string]: any; };
+    private _language: string = Languages.ENGLISH;
+    private _terms: {[key: string]: Array<string>;};
+    private _entries: {[key: string]: any;};
     private _maxEntryLength: number = 0;
     private _initialized: boolean = false;
 
@@ -36,6 +36,15 @@ export class MemoryStore implements DataStore {
         return this._terms[this._language][index] || null;
     }
 
+    async getTermsAt(indexes: Array<number>): Promise<Array<string>> {
+        const terms: Array<string> = [];
+        for(let i=0; i < indexes.length; i+= 1){
+            terms.push(this._terms[this._language][indexes[i]] || null);
+        }
+
+        return terms;
+    }
+
     async setEntry(key: string, value: Array<number>): Promise<boolean> {
         const result = this._entries[this._language].set(key, value);
 
@@ -50,8 +59,8 @@ export class MemoryStore implements DataStore {
         return this._entries[this._language].get(key) || null;
     }
 
-    async getManyEntries(keys: Array<string>): Promise<Array<Array<number>>> {
-        const result = [];
+    async getEntries(keys: Array<string>): Promise<Array<Array<number>>> {
+        const result: Array<Array<number>> = [];
         for (let i = 0; i < keys.length; i += 1) {
             const item = this._entries[this._language].get(keys[i]);
             if (item != null && item.length > 0) {
