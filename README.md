@@ -14,7 +14,7 @@ Spelling correction & Fuzzy search based on *Symmetric Delete Spelling Correctio
     npm install symspell-ex --save
 
 > Changes v1.1.1
-> - 
+> - Tokenization support
 > - Term frequency should be provided for training and terms should be unique
 > - Correct function return different object (`Correction` object) 
 > - Hash table implemented in redis store instead of normal list structure

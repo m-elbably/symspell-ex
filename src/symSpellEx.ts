@@ -5,7 +5,7 @@ import {
     Suggestion,
     Correction,
     Tokenizer,
-    TokenTags
+    TokenTags, Languages
 } from "./core";
 import {DamerauLevenshteinDistance} from "./core/nlp/editDistance";
 import {CoreTokenizer} from "./core/nlp/tokenizers";
@@ -20,6 +20,7 @@ export class SymSpellEx {
     private _tokenizer: Tokenizer;
     private readonly _maxDistance: number;
     private readonly _maxSuggestions: number;
+    private _language = Languages.ENGLISH;
     private _isInitialized = false;
 
     constructor(store: DataStore,
@@ -49,6 +50,16 @@ export class SymSpellEx {
 
     get maxSuggestions(): Number {
         return this._maxSuggestions;
+    }
+
+    async setLanguage(language: string): Promise<void> {
+        this._checkForReadiness();
+        this._language = language;
+        await this.store.setLanguage(language)
+    }
+
+    get language() {
+        return this._language;
     }
 
     private _checkForReadiness(): void {
@@ -99,17 +110,23 @@ export class SymSpellEx {
         }).filter((i, index) => index < max);
     }
 
-    private async lookup(term: string, language: string, maxDistance: number = this._maxDistance, maxSuggestions: number = this._maxSuggestions):
+    async lookup(term: string, language?: string, maxDistance?: number, maxSuggestions?: number):
         Promise<Array<Suggestion>> {
 
         this._checkForReadiness();
 
+        const iLanguage = language || this._language;
+        const iMaxDistance = maxDistance || this._maxDistance;
+        const iMaxSuggestions = maxSuggestions || this._maxSuggestions;
         const iTerm = term.toLowerCase().trim();
         const iLength = iTerm.length;
         const maxKeyLength = await this.store.maxEntryLength();
 
-        await this.store.setLanguage(language);
-        if (iLength - maxDistance > maxKeyLength) {
+        if(iLanguage !== this._language) {
+            await this.store.setLanguage(iLanguage);
+        }
+
+        if (iLength - iMaxDistance > maxKeyLength) {
             return [];
         }
 
@@ -198,7 +215,7 @@ export class SymSpellEx {
                         }
                     }
 
-                    if (distance <= maxDistance) {
+                    if (distance <= iMaxDistance) {
                         const suggestionEntry = await this.store.getEntry(sTerm);
                         if (suggestionEntry != null) {
                             suggestions.push(new Suggestion(term, sTerm, distance, suggestionEntry[0]));
@@ -207,7 +224,7 @@ export class SymSpellEx {
                 }
             }
 
-            if (iLength - candidate.length < maxDistance) {
+            if (iLength - candidate.length < iMaxDistance) {
                 if (candidateHasHigherDistance) {
                     continue;
                 }
@@ -222,19 +239,22 @@ export class SymSpellEx {
             }
         }
 
-        return this.filterAndRankSuggestions(suggestions, maxSuggestions);
+        return this.filterAndRankSuggestions(suggestions, iMaxSuggestions);
     }
 
-    async add(term: string, frequency: number, language: string, maxDistance = this._maxDistance): Promise<void> {
+    async add(term: string, frequency: number = 1, language?: string, maxDistance?: number): Promise<void> {
         this._checkForReadiness();
-
         if (term == null || term.length <= 1) return;
 
-        const nTerm = term.toLowerCase().trim();
-        await this.store.setLanguage(language);
+        const iLanguage = language || this._language;
+        const iMaxDistance = maxDistance || this._maxDistance;
+        const iTerm = term.toLowerCase().trim();
+        if(iLanguage !== this._language) {
+            await this.store.setLanguage(iLanguage);
+        }
 
         let initialEntry = true;
-        let entry = await this.store.getEntry(nTerm);
+        let entry = await this.store.getEntry(iTerm);
 
         if(entry == null) {
             entry = new DictionaryEntry(frequency)
@@ -247,23 +267,27 @@ export class SymSpellEx {
             }
         }
 
-        await this.store.setEntry(nTerm, entry);
+        await this.store.setEntry(iTerm, entry);
         if (initialEntry) {
-            const number = await this.store.pushTerm(nTerm) - 1;
-            const deletes = this.edits(nTerm, 0, maxDistance, null);
+            const number = await this.store.pushTerm(iTerm) - 1;
+            const deletes = this.edits(iTerm, 0, iMaxDistance, null);
+            const deletesArray = Array.from(deletes);
 
-            for (const deletedItem of deletes) {
-                const target = await this.store.getEntry(deletedItem);
-                if (target != null) {
-                    if (target.indexOf(number) <= 0) {
-                        target.push(number);
-                    }
-                    await this.store.setEntry(deletedItem, target);
-                } else {
-                    const deletedEntry = new DictionaryEntry(0, number);
-                    await this.store.setEntry(deletedItem, deletedEntry);
-                }
-            }
+            await this.store.getEntries(deletesArray)
+                .then((items) => {
+                    items.forEach(async (item, index) => {
+                        const dKey = deletesArray[index];
+                        if(item != null) {
+                            if(item.indexOf(number) <= 0){
+                                item.push(number);
+                                await this.store.setEntry(dKey, item);
+                            }
+                        } else {
+                            const dEntry = new DictionaryEntry(0, number);
+                            await this.store.setEntry(dKey, dEntry);
+                        }
+                    });
+                });
         }
     }
 
@@ -313,6 +337,13 @@ export class SymSpellEx {
                     });
             }
 
+            // Check word first char case
+            const caseMatch = token.value.match(/^[A-Z]/g);
+            if(caseMatch != null){
+                const sTerm = termSuggestion.suggestion;
+                termSuggestion.suggestion = `${sTerm.substr(0,1).toUpperCase()}${sTerm.substr(1)}`;
+            }
+
             suggestions.push(termSuggestion);
             term = termSuggestion.suggestion != null ? termSuggestion.suggestion: termSuggestion.term;
             term = `${term}${String(' ').repeat(postDistance)}`;
@@ -323,6 +354,7 @@ export class SymSpellEx {
         // Trim 0x00 from buffer
         tOutput = Buffer.from(output.filter((b) => b !== 0x00))
             .toString('utf8');
+
         return new Correction(input, tOutput, suggestions);
     }
 

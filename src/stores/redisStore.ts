@@ -23,11 +23,11 @@ export class RedisStore implements DataStore {
             numberOfKeys: 2,
             lua:
                 `
-                local olen = redis.call("hget", "${this._configNamespace}", "${this._maxEntryLength}")
+                local olen = redis.call("hget", "${this._configNamespace}", ARGV[2])
                 local value = redis.call("hset", KEYS[1], KEYS[2], ARGV[1])
                 local nlen = #KEYS[2]
                 if(not olen or nlen > tonumber(olen)) then
-                  redis.call("hset", "${this._configNamespace}", "${this._maxEntryLength}", nlen)
+                  redis.call("hset", "${this._configNamespace}", ARGV[2], nlen)
                 end
                 return value
                 `
@@ -77,7 +77,7 @@ export class RedisStore implements DataStore {
 
     async setEntry(key: string, value: Array<number>): Promise<boolean> {
         const mValue = JSON.stringify(value);
-        return this._redis.hSetEntry(this._entriesNamespace, key, mValue)
+        return this._redis.hSetEntry(this._entriesNamespace, key, mValue, this._maxEntryLength)
             .then((value: number) => value === 1);
     }
 
