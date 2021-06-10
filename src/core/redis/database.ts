@@ -58,7 +58,7 @@ export class Redis {
         const self = this;
         this._db = new IoRedis(this._config);
         this._db.on('ready', async () => {
-            console.log('Connected to redis');
+            // console.log('Connected to redis');
             self._isConnected = true;
         });
     }
