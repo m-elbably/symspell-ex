@@ -269,7 +269,7 @@ export class SymSpellEx {
 
     /**
      * Train on bulk data
-     * @param {Array<string>} terms - each item is csv value contains "term,frequency"
+     * @param {Array<string>} terms - each item is comma separated value contains "term,frequency"
      * @param {string} language
      * @returns {Promise<void>}
      */

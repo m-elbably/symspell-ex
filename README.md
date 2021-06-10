@@ -95,58 +95,9 @@ Returns this `Correction` object:
 > This output is totally depending on the quality of the training data that was push into the store
 ```json
 {
-  "suggestions": [
-    {
-      "term": "Special",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "relatvity",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "was",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "orignally",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "proposed",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "by",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    },
-    {
-      "term": "Albert",
-      "suggestion": "albert",
-      "distance": 0,
-      "frequency": 1
-    },
-    {
-      "term": "Einstein",
-      "suggestion": null,
-      "distance": 0,
-      "frequency": 0
-    }
-  ],
+  "suggestions": [],
   "input": "Special relatvity was orignally proposed by Albert Einstein",
-  "output": "Special relatvity was orignally proposed by albert Einstein"
+  "output": "Special relativity was originally proposed by albert Einstein"
 }
 ```
 
