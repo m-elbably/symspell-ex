@@ -150,6 +150,9 @@ describe('Testing SymSpellEx basic corrections', () => {
             .equal(0);
 
         expect(sNormal.output)
-            .to.be.equal(sCase.output);
+            .to.be.not.equal(sCase.output);
+
+        expect(sNormal.output)
+            .to.be.equal(sCase.output.toLowerCase());
     });
 });

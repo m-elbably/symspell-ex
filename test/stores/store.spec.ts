@@ -80,7 +80,7 @@ export function executeStoreTest(symSpellEx: SymSpellEx,
         });
 
         it('Should have terms and entries for another language as undefined', async () => {
-            await symSpellEx.store.setLanguage(Languages.ARABIC);
+            await symSpellEx.setLanguage(Languages.ARABIC);
             const term = await symSpellEx.store.getTermAt(0);
             const entry = await symSpellEx.store.getEntry(enValidTerms[0]);
 

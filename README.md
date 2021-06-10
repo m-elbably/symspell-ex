@@ -97,7 +97,7 @@ Returns this `Correction` object:
 {
   "suggestions": [],
   "input": "Special relatvity was orignally proposed by Albert Einstein",
-  "output": "Special relativity was originally proposed by albert Einstein"
+  "output": "Special relativity was originally proposed by Albert Einstein"
 }
 ```
 
