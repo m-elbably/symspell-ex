@@ -1,5 +1,5 @@
 import {SymSpellEx, RedisStore} from "../../src";
-import {Redis, RedisConfig} from "../../src/core/redis/database";
+import {Redis, RedisConfig} from "../../src";
 import {executeStoreTest} from "./store.spec";
 
 const redisHost = process.env.REDIS_HOST || 'localhost';

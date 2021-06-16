@@ -328,7 +328,7 @@ export class SymSpellEx {
             let term = token.value;
             let termSuggestion = new Suggestion(term, null,0, 0);
             const postDistance = token.distance;
-            if(token.tag === TokenTags.WORD){
+            if(token.tag === TokenTags.WORD && token.value.length >= 2){
                 await this.lookup(term, language, maxDistance, 1)
                     .then((lSuggestions) => {
                         if(lSuggestions.length > 0) {
