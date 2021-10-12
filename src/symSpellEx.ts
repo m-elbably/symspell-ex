@@ -315,6 +315,9 @@ export class SymSpellEx {
 
     async correct(input: string, language: string, maxDistance = this._maxDistance): Promise<Correction> {
         this._checkForReadiness();
+        if(input == null) {
+            return null;
+        }
 
         const bLength = Buffer.byteLength(input, 'utf8');
         const output = Buffer.alloc(bLength * 2);
@@ -341,7 +344,9 @@ export class SymSpellEx {
             const caseMatch = token.value.match(/^[A-Z]/g);
             if(caseMatch != null){
                 const sTerm = termSuggestion.suggestion;
-                termSuggestion.suggestion = `${sTerm.substr(0,1).toUpperCase()}${sTerm.substr(1)}`;
+                if(sTerm != null) {
+                    termSuggestion.suggestion = `${sTerm.substr(0, 1).toUpperCase()}${sTerm.substr(1)}`;
+                }
             }
 
             suggestions.push(termSuggestion);
