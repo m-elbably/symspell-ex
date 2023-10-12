@@ -5,7 +5,8 @@ import {
     Suggestion,
     Correction,
     Tokenizer,
-    TokenTags, Languages
+    TokenTags,
+    Languages
 } from "./core";
 import {DamerauLevenshteinDistance} from "./core/nlp/editDistance";
 import {CoreTokenizer} from "./core/nlp/tokenizers";
@@ -24,8 +25,8 @@ export class SymSpellEx {
     private _isInitialized = false;
 
     constructor(store: DataStore,
-                editDistance = new DamerauLevenshteinDistance(),
-                tokenizer = new CoreTokenizer(),
+                editDistance: EditDistance = new DamerauLevenshteinDistance(),
+                tokenizer: Tokenizer = new CoreTokenizer(),
                 maxDistance = DEFAULT_MAX_DISTANCE,
                 maxSuggestions = DEFAULT_MAX_SUGGESTIONS) {
         this.store = store || null;
